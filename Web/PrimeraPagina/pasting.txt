@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ejemplo de Clase - ASTRO-RIDE</title>
+</head>
+
+
+<body>
+    <div class="Header">
+        <h1>ASTRO-RIDE</h1>
+    </div>
+
+    <div class="Content">
+        <div id="mainP">
+            <p id="par1"> WELCOME TO <b>ASTRO-RIDE</b> <br>
+            Don't miss out on our <i>variety of options for your dream</i> vehicle! <br>
+            We pride ourselves on providing you with the best experiences, with the vehicles<br>
+            you've always wanted from the Multiverse!<br>
+            </p>
+        </div>
+        
+        <div id="mainI">
+            <img src="MultiverseCars.jpg" alt="Multiverse Cars" width="500">
+        </div>
+    </div>    
+    
+    <div class="Footer">
+        <h6>By J. <br>
+            reg. 2026</h6>
+    </div>
+
+    
+    <!-- <a href="www.google.com">google</a> -->
+    
+</body>
+
+
+</html>
