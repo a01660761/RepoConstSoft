@@ -1,7 +1,7 @@
 function traducir() {
-    document.getElementById("par1").innerHTML = "Traduccion";
+    document.getElementById("p").innerHTML = "text";
 }
 
 function cambiarFondo() {
-    document.getElementsByTagName("Body")[0].style.backgroundColor = "blue";
+    document.getElementsByTagName("body")[0].style.backgroundColor = "white";
 }

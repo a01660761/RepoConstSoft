@@ -4,38 +4,53 @@
 <head>
     <meta charset="UTF-8">
     <title>Ejemplo de Clase - ASTRO-RIDE</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="index.js" defer></script> <!-- se carga después de que el HTML ya está listo -->
 </head>
 
 
-<body style="background-color:#92a6af; font-family: Arial, Helvetica, sans-serif;">
-    <header style="background-color:#161515;">
-        <h1 align="center" style="color: rgb(238, 238, 11);">ASTRO-RIDE</h1>
+<body class="dark">
+    <header>
+        <h1>ASTRO-RIDE</h1>
     </header>
 
-    <main>
-        <section>
-            <h2>Welcome to ASTRO-RIDE</h2>
-            <p>
-                Don't miss out on our <b>variety of options for your dream vehicle! </b>
-            </p>
-            <p>
-                We pride ourselves on providing the best experiences with the vehicles
-                you've always wanted from <i>the Multiverse.</i>
-            </p>
-        </section>
+    <main id="mainContent">
+        <h2 id="titleText">WELCOME TO ASTRO-RIDE</h2>
+
+        <p id="p1">
+        Don't miss out on our <b>variety of options for your dream vehicle!</b>
+        </p>
+
+        <p id="p2">
+        We pride ourselves on providing the best experiences with the vehicles
+        you've always wanted from <i>the Multiverse.</i>
+        </p>
         
-        <section align="center">
-            <img src="MultiverseCars.jpg" alt="Multiverse Cars" width="500">
-        </section>
+        <div class="imgUsed">
+            <img src="IconicMultiverseCarsv2.png" alt="Multiverse Cars v2" width="600">
+        </div>
+
+        <button type="button" onclick="traducir()">
+            Translate
+        </button>
+
+        <button type="button" onclick="changeBG()">
+            BackGround
+        </button>
+
+
+        <div class="linkBox">
+             <a href="https://www.theringer.com/2023/12/21/movies/ferrari-movie-michael-mann-adam-driver-pop-culture-cars-ranked">THE RINGER</a>
+        </div>
     </main>    
+
     
-    <footer class="Footer">
+    <footer>
         <h6>By J. <br>
             Registered 2026</h6>
     </footer>
 
     
-    <!-- <a href="www.google.com">google</a> -->
     
 </body>
 

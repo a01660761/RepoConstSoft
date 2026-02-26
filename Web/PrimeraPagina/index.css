@@ -1,36 +1,75 @@
 body {
-    color:azure;
+  background-color: #000000;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+}
+
+header {
+  background-color: #00fff2;
+  padding: 15px 0;
+  text-align: center;
+  border: 3px solid rgb(238, 238, 11);
+  border-radius: 25px;
+}
+
+header h1 {
+  color: rgb(0, 0, 0);
+  margin: 0;
+}
+
+main {
+  padding: 10px 25px;
+  text-align: center;
+}
+
+main h2 {
+  color: rgb(238, 238, 11);
+}
+
+main p {
+  color: whitesmoke;
+}
+
+.imgUsed {
+  margin-top: 15px;
+}
+
+.imgUsed img {
+  border: 3px solid rgb(238, 238, 11);
+  border-radius: 15px;
+}
+
+.linkBox {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.linkBox a {
+  color: yellow;
+}
+
+footer {
+  text-align: right;
+  padding: 15px;
+  color: #444;
+}
+
+.dark {
     background-color: black;
+    color: white;
 }
 
-.Header {
-    color:black;
-    background-color: azure;
+.light {
+    background-color: white;
+    color: black;
 }
 
-.Content {
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: x-large;
-    margin-top: 50px;
-    color:black;
-    background-color: azure;
-    border-style: dashed;
-    border-radius: 2%;
-    border-color: blue;
-}
+/* MODO OSCURO */
+body.dark main h2 {color: rgb(238, 238, 11);}
+body.dark main p  {color: whitesmoke;}
 
-.Footer {
-    justify-content: center;
-    align-items: center;
-    color:black;
-    background-color: azure;
-}
-
-#mainP {
-    width: 40%;
-}
-
-#mainI {
-    width: 15%;
-    align-items: end;
-}
+/* MODO CLARO */
+body.light main h2 {color: #111;}
+body.light main p  {color: #111;}
+body.dark .linkBox a {color: yellow;}
+body.light .linkBox a {color: #1f749b;}
