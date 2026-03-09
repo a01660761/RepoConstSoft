@@ -1,0 +1,21 @@
+body {
+    margin: 0;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    background-color:rgb(41, 48, 48);
+    color:aliceblue;
+    text-align: center;
+}
+
+h1 {
+    font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+    font-style: italic;
+    margin-top: 20px;
+    font-size: 250%;
+}
+
+canvas {
+    display: block;
+    margin: 20px auto;
+    background-color: rgb(5, 51, 88);
+    border: 5px solid aliceblue;
+}
