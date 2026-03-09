@@ -63,10 +63,10 @@ function gameLoop() {
     drawPlayBar();
 
     if (
-        ballX >= paddleX &&
-        ballX <= paddleX + paddleWidth &&
-        ballY + ballRadius >= paddleY &&
-        ballY + ballRadius <= paddleY + paddleHeight
+        ballX >= playBarX &&
+        ballX <= playBarX + playBarWidth &&
+        ballY + ballRadius >= playBarY &&
+        ballY + ballRadius <= playBarY + playBarHeight
     ) {
         dy = -dy; // reverse vertical direction on bounce with the player bar
     }
