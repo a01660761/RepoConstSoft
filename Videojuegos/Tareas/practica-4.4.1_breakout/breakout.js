@@ -62,15 +62,8 @@ function gameLoop() {
     drawBall();
     drawPlayBar();
 
-    if (
-        ballX >= playBarX &&
-        ballX <= playBarX + playBarWidth &&
-        ballY + ballRadius >= playBarY &&
-        ballY + ballRadius <= playBarY + playBarHeight
-    ) {
-        dy = -dy; // reverse vertical direction on bounce with the player bar
-    }
 
+    // play bar movement
     if (leftPressed && playBarX > 0) {
         playBarX -= playBarSpeed; // move left
     }
@@ -79,13 +72,33 @@ function gameLoop() {
         playBarX += playBarSpeed; // move right
     }
 
+
+    // ball movement and collision with walls
     if (ballX + ballRadius > canvas.width || ballX - ballRadius < 0) {
         dx = -dx; // reverse horizontal direction
     }
 
-    if (ballY + ballRadius > canvas.height || ballY - ballRadius < 0) {
+    
+
+    if (ballY - ballRadius < 0) {
         dy = -dy; // reverse vertical direction
     }
+
+    else if (
+        ballX >= playBarX &&
+        ballX <= playBarX + playBarWidth &&
+        ballY + ballRadius >= playBarY &&
+        ballY + ballRadius <= playBarY + playBarHeight
+    ) {
+        dy = -dy; // reverse vertical direction on bounce with the player bar
+    }
+
+    // check for game over condition
+    else if (ballY + ballRadius > canvas.height) {
+        alert("GAME OVER");
+        document.location.reload(); // reload the page to restart the game
+    }
+
 
     ballX += dx;
     ballY += dy;
