@@ -22,7 +22,7 @@ document.addEventListener("keydown", keyDownHandler);
 document.addEventListener("keyup", keyUpHandler);
 
 // brick construction
-let brickRows = 6;
+let brickRows = 5;
 let brickColumns = 8;
 let brickWidth = 100;
 let brickHeight = 30;
@@ -30,18 +30,49 @@ let brickSpacing = 5;
 let brickSpaceTop = 5;
 let brickSpaceLeft = -10;
 
+
+// game status
+let lives = 3;
+let destroyedBlocks = 0;
+
 let bricksBuilt = [];
 
-for (let i = 0; i < brickColumns; i++) {
-    bricksBuilt[i] = [];
-    for (let j = 0; j < brickRows; j++) {
-        bricksBuilt[i][j] = { x: 0, y: 0, status: 1 }; // status 1 means the brick is still visible
+function createBricks() {
+    bricksBuilt = [];
+
+    for (let i = 0; i < brickColumns; i++) {
+        bricksBuilt[i] = [];
+        for (let j = 0; j < brickRows; j++) {
+            bricksBuilt[i][j] = { x: 0, y: 0, status: 1 }; // status 1 means the brick is still visible
+        }
     }
 }
+createBricks();
+
 
 
 
 // functions
+function partialResetGame() {
+    ballX = canvas.width / 2;
+    ballY = canvas.height - 60;
+    dx = 2;
+    dy = -2;
+
+    playBarX = (canvas.width - playBarWidth) / 2;
+    playBarY = canvas.height - 45;
+
+    leftPressed = false;
+    rightPressed = false;
+}
+
+function resetGame() {
+    lives = 3;
+    destroyedBlocks = 0;
+    partialResetGame();
+    createBricks();
+}
+
 function drawBall() {
     ctx.beginPath();
     ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
@@ -53,6 +84,18 @@ function drawBall() {
 function drawPlayBar() {
     ctx.fillStyle = "aliceblue";
     ctx.fillRect(playBarX, playBarY, playBarWidth, playBarHeight);
+}
+
+function drawLives() {
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "aliceblue";
+    ctx.fillText("Lives: " + lives, 20, 30);
+}
+
+function drawBlockScore() {
+    ctx.font = "20px Arial";
+    ctx.fillStyle = "aliceblue";
+    ctx.fillText("Blocks Destroyed: " + destroyedBlocks, 140, 30);
 }
 
 function keyDownHandler(event) {
@@ -96,9 +139,14 @@ function collisionBricks() {
             let br = bricksBuilt[i][j];
 
             if (br.status === 1) {
-                if (ballX > br.x && ballX < br.x + brickWidth && ballY > br.y &&ballY < br.y + brickHeight) {
+                if (ballX + ballRadius > br.x && 
+                    ballX - ballRadius < br.x + brickWidth && 
+                    ballY + ballRadius > br.y &&
+                    ballY - ballRadius< br.y + brickHeight
+                ) {
                     dy = -dy; // reverse vertical direction on bounce with the brick
                     br.status = 0; // destroyed brick
+                    destroyedBlocks++;
                 }
             }
         }
@@ -112,7 +160,17 @@ function gameLoop() {
     drawBall();
     drawPlayBar();
     drawBricks();
+    drawLives();
+    drawBlockScore();
     collisionBricks();
+
+    // check for winning condition
+    if (destroyedBlocks === brickRows * brickColumns) {
+        alert("NICE WIN");
+        resetGame();
+        requestAnimationFrame(gameLoop);
+        return;
+    }
 
 
     // play bar movement
@@ -145,11 +203,23 @@ function gameLoop() {
         dy = -dy; // reverse vertical direction on bounce with the player bar
     }
 
-    // check for game over condition
+    
+
     else if (ballY + ballRadius > canvas.height) {
-        alert("GAME OVER");
-        location.reload(); // reload the page to restart the game
-        return; // exit the game loop
+        lives--;
+
+        if (lives > 0) {
+            partialResetGame();
+            requestAnimationFrame(gameLoop);
+            return;
+        }
+
+        else {
+            alert("GAME OVER");
+            resetGame();
+            requestAnimationFrame(gameLoop);
+            return;
+        }
     }
 
     // update ball position
@@ -157,6 +227,8 @@ function gameLoop() {
     ballY += dy;
 
     requestAnimationFrame(gameLoop); // call gameLoop again to create a loop
+
+    
 }
 
 gameLoop(); // start the game loop
