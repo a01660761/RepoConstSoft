@@ -32,6 +32,8 @@ let brickSpaceLeft = -10;
 
 
 // game status
+let gameState = "playing"; // can be "playing", "gameover" or "win"
+
 let lives = 3;
 let destroyedBlocks = 0;
 
@@ -48,6 +50,19 @@ function createBricks() {
     }
 }
 createBricks();
+
+function drawGameOverlay(text, color) {
+    ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // semi-transparent black background
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = "bold 70px Arial";
+    ctx.fillStyle = color;
+    ctx.textAlign = "center";
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    ctx.font = "30px Arial";
+    ctx.fillStyle = "aliceblue";
+    ctx.fillText("Press SPACE to play again", canvas.width / 2, canvas.height / 2 + 50);
+    ctx.textAlign = "left";
+}
 
 
 
@@ -89,16 +104,24 @@ function drawPlayBar() {
 function drawLives() {
     ctx.font = "20px Arial";
     ctx.fillStyle = "aliceblue";
-    ctx.fillText("Lives: " + lives, 20, 30);
+    ctx.fillText("Lives: " + lives, 20, 320);
 }
 
 function drawBlockScore() {
     ctx.font = "20px Arial";
     ctx.fillStyle = "aliceblue";
-    ctx.fillText("Blocks Destroyed: " + destroyedBlocks, 140, 30);
+    ctx.fillText("Blocks Destroyed: " + destroyedBlocks, 20, 350);
 }
 
 function keyDownHandler(event) {
+    if (event.code === "Space") {
+        if (gameState === "gameover" || gameState === "win") {
+            resetGame();
+            gameState = "playing";
+        }
+    }
+
+
     if (event.key === "Left" || event.key === "ArrowLeft") {
         leftPressed = true;
     }
@@ -166,10 +189,7 @@ function gameLoop() {
 
     // check for winning condition
     if (destroyedBlocks === brickRows * brickColumns) {
-        alert("NICE WIN");
-        resetGame();
-        requestAnimationFrame(gameLoop);
-        return;
+        gameState = "win";
     }
 
 
@@ -203,8 +223,6 @@ function gameLoop() {
         dy = -dy; // reverse vertical direction on bounce with the player bar
     }
 
-    
-
     else if (ballY + ballRadius > canvas.height) {
         lives--;
 
@@ -213,14 +231,24 @@ function gameLoop() {
             requestAnimationFrame(gameLoop);
             return;
         }
-
         else {
-            alert("GAME OVER");
-            resetGame();
-            requestAnimationFrame(gameLoop);
-            return;
+            gameState = "gameover";
+            lives = 0; // ensure lives don't go negative
         }
     }
+
+    if (gameState === "win") {
+        drawGameOverlay("NICE WIN", "#00ff66");
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+
+    if (gameState === "gameover") {
+        drawGameOverlay("GAME OVER", "#ff3b3b");
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+
 
     // update ball position
     ballX += dx;
