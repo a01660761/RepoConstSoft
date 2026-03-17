@@ -9,8 +9,8 @@ let dx = 2; // change in x (speed and direction)
 let dy = -2; // change in y (speed and direction)
 
 // Player Bar drawing
-let playBarWidth = 120;
 let playBarHeight = 15;
+let playBarWidth = 120;
 let playBarX = (canvas.width - playBarWidth) / 2; // center the player bar horizontally
 let playBarY = canvas.height - 45; // position the player bar near the bottom of the canvas
 let playBarSpeed = 2.5; // speed of the player bar movement
@@ -39,7 +39,7 @@ let destroyedBlocks = 0;
 
 let bricksBuilt = [];
 
-function createBricks() {
+function spawnBricks() {
     bricksBuilt = [];
 
     for (let i = 0; i < brickColumns; i++) {
@@ -49,7 +49,7 @@ function createBricks() {
         }
     }
 }
-createBricks();
+spawnBricks();
 
 function drawGameOverlay(text, color) {
     ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // semi-transparent black background
@@ -85,7 +85,7 @@ function resetGame() {
     lives = 3;
     destroyedBlocks = 0;
     partialResetGame();
-    createBricks();
+    spawnBricks();
 }
 
 function drawBall() {
