@@ -26,6 +26,11 @@ Destruye todos los bloques mostrados en pantalla, prediciendo a dónde botará t
 ## Startup
 Simplemente abre [breakout.html](breakout.html) en tu browser de preferencia, y disfruta del juego!
 
+## Features
+- Grid de bloques costumizable (filas y columnas)
+- Tableros con scores
+- Sistema de reinicio
+
 ## Resources
 - HTML
 - CSS
