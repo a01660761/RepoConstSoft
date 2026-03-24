@@ -24,10 +24,13 @@ app.post('/suma', (req, res) => {
     let x = parseFloat(req.primero);
     let y = parseFloat(req.segundo);
     resultado = x + y;
-    res.send(resultado)
+    let m = resultado.toString()
+    res.send(m)
 })
 
-app.use('coldPic', express.static('ice-man.jpg'))
+app.use('/coldPic', express.static('ice-man.jpg'))
+app.use('/iceColdSite', express.static('../PrimeraPagina/index.html'))
+
 
 app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
