@@ -18,9 +18,9 @@ class Ball {
     }
 
     reset() {
-        this.x = this.canvasHeight / 2;
+        this.x = this.canvasWidth / 2;
         this.y = this.canvasHeight - 60;
-        this .dx = 2; // change in x (speed and direction)
+        this.dx = 2; // change in x (speed and direction)
         this.dy = -2; // change in y (speed and direction)
     }
 
@@ -89,15 +89,34 @@ class brickWall {
         this.spawnBricks();
     }
 
-    spawnBricks() {
+    spawnBricks(level = 1) {
         this.bricks = [];
+
+        const rowColors = ["#ff4d4d", "#ff944d", "#ffd24d", "#66e066", "#4da6ff"];
 
         for (let i = 0; i < this.columns; i++) {
             this.bricks[i] = [];
             for (let j = 0; j < this.rows; j++) {
-                this.bricks[i][j] = {x: 0, y: 0, status: 1}; // status 1 = brick available (this is an objetc)
+                this.bricks[i][j] = {x: 0, y: 0, status: 1, color: rowColors[j % rowColors-length], type: "normal"}; // status 1 = brick available (this is an objetc)
             }
         }
+
+        // bonus health bricks (lv 2)
+        if (level >= 2) {
+            let bonusCounter = level === 2 ? 1 : 2;
+
+            while (bonusCounter > 0) {
+                const randomColumn = Math.floor(Math.random() * this.columns);
+                const randomRow = Math.floor(Math.random() * this.rows);
+
+                if (this.bricks[randomColumn][randomRow].type === "normal") {
+                    this.bricks[randomColumn][randomRow].type = "life";
+                    this.bricks[randomColumn][randomRow].color = "#00ff66";
+                    bonusCounter--;
+                }
+            }
+        }
+
     }
 
     reset() {
@@ -114,7 +133,7 @@ class brickWall {
                     this.bricks[i][j].x = brickX; // store the x position of the brick
                     this.bricks[i][j].y = brickY; // store the y position of the brick
 
-                    ctx.fillStyle = "red";
+                    ctx.fillStyle = this.bricks[i][j].color;
                     ctx.fillRect(brickX, brickY, this.brickWidth, this.brickHeight);
                 }
             }
@@ -123,6 +142,7 @@ class brickWall {
 
     ballCollision(ball) {
         let bricksDestroyed = 0;
+        let livesEarned = 0;
 
         for (let i = 0; i < this.columns; i++) {
             for (let j = 0; j < this.rows; j++) {
@@ -137,12 +157,19 @@ class brickWall {
                         ball.dy = -ball.dy; // reverse vertical direction on bounce with the brick
                         br.status = 0; // destroyed brick
                         bricksDestroyed++;
+
+                        if (br.type === "life") {
+
+                        }
                     }
                 }
             }
         }
 
-        return bricksDestroyed;
+        return {
+            bricksDestroyed,
+            livesEarned
+        };
     }
 
     totalBricks() {
