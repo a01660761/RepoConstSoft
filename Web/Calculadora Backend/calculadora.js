@@ -7,7 +7,7 @@ $(document).ready(function () {
         first = $("#fnumber").val();
         second = $("#snumber").val();
         valores = { "primero": first, "segundo": second };
-        $.post("http://127.0.0.1:3005/suma", valores, function (data, status) {
+        $.post("http://localhost:3005/suma", valores, function (data, status) {
             console.log(status)
             $("#result").text(data);
 
@@ -21,7 +21,7 @@ $(document).ready(function () {
         first = $("#fnumber").val();
         second = $("#snumber").val();
         valores = { "primero": first, "segundo": second };
-        $.post("http://127.0.0.1:3005/resta", valores, function (data, status) {
+        $.post("http://localhost:3005/resta", valores, function (data, status) {
             console.log(status)
             $("#result").text(data);
 
@@ -35,7 +35,7 @@ $(document).ready(function () {
         first = $("#fnumber").val();
         second = $("#snumber").val();
         valores = { "primero": first, "segundo": second };
-        $.post("http://127.0.0.1:3005/multiplicacion", valores, function (data, status) {
+        $.post("http://localhost:3005/multiplicacion", valores, function (data, status) {
             console.log(status)
             $("#result").text(data);
 
@@ -49,7 +49,7 @@ $(document).ready(function () {
         first = $("#fnumber").val();
         second = $("#snumber").val();
         valores = { "primero": first, "segundo": second };
-        $.post("http://127.0.0.1:3005/division", valores, function (data, status) {
+        $.post("http://localhost:3005/division", valores, function (data, status) {
             console.log(status)
             $("#result").text(data);
 
