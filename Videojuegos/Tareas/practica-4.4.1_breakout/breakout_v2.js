@@ -3,25 +3,35 @@
 *
 * Manuel Montero - A01660761
 *
-*
 */
 
 const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d"); // ctx = context for what type of canvas we are using (has different methods)
+const ctx = canvas.getContext("2d");
+
 
 class Ball {
     constructor(canvasWidth, canvasHeight) {
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
         this.radius = 10;
+
+        this.baseSpeed = 220;
         this.reset();
     }
 
     reset() {
         this.x = this.canvasWidth / 2;
         this.y = this.canvasHeight - 60;
-        this.dx = 2; // change in x (speed and direction)
-        this.dy = -2; // change in y (speed and direction)
+        this.dx = this.baseSpeed;
+        this.dy = -this.baseSpeed;
+    }
+
+    setSpeedMultiplier(multiplier) {
+        const horizontalDirection = this.dx >= 0 ? 1 : -1;
+        const verticalDirection = this.dy >= 0 ? 1 : -1;
+
+        this.dx = this.baseSpeed * multiplier * horizontalDirection;
+        this.dy = this.baseSpeed * multiplier * verticalDirection;
     }
 
     draw(ctx) {
@@ -32,13 +42,11 @@ class Ball {
         ctx.closePath();
     }
 
-    // update ball position
-    ballMovement() {
-        this.x += this.dx;
-        this.y += this.dy;
+    ballMovement(deltaTime) {
+        this.x += this.dx * deltaTime;
+        this.y += this.dy * deltaTime;
     }
 }
-
 
 
 class Paddle {
@@ -47,13 +55,13 @@ class Paddle {
         this.canvasHeight = canvasHeight;
         this.height = 15;
         this.width = 120;
-        this.speed = 2.5; // speed of the player bar movement
+        this.speed = 420;
         this.reset();
     }
 
     reset() {
-        this.x = (this.canvasWidth - this.width) / 2; // center the player bar horizontally
-        this.y = this.canvasHeight - 45; // position the player bar near the bottom of the canvas
+        this.x = (this.canvasWidth - this.width) / 2;
+        this.y = this.canvasHeight - 45;
     }
 
     draw(ctx) {
@@ -61,22 +69,25 @@ class Paddle {
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
-    goLeft() { // left movement with boundary check
-        if (this.x > 0){
-            this.x -= this.speed; // move left
+    goLeft(deltaTime) {
+        this.x -= this.speed * deltaTime;
+
+        if (this.x < 0) {
+            this.x = 0;
         }
     }
 
-    goRight() { // right movement with boundary check
-        if (this.x + this.width < this.canvasWidth) {
-            this.x += this.speed; // move right
+    goRight(deltaTime) {
+        this.x += this.speed * deltaTime;
+
+        if (this.x + this.width > this.canvasWidth) {
+            this.x = this.canvasWidth - this.width;
         }
     }
 }
 
 
-
-class brickWall {
+class BrickWall {
     constructor(rows, columns, width, height, spacing, spaceTop, spaceLeft) {
         this.rows = rows;
         this.columns = columns;
@@ -86,54 +97,61 @@ class brickWall {
         this.spaceTop = spaceTop;
         this.spaceLeft = spaceLeft;
         this.bricks = [];
-        this.spawnBricks();
+        this.rowColors = ["#ff4d4d", "#ff944d", "#ffd24d", "#66ccff", "#b266ff"];
+        this.spawnBricks(1);
     }
 
     spawnBricks(level = 1) {
         this.bricks = [];
 
-        const rowColors = ["#ff4d4d", "#ff944d", "#ffd24d", "#66e066", "#4da6ff"];
-
         for (let i = 0; i < this.columns; i++) {
             this.bricks[i] = [];
+
             for (let j = 0; j < this.rows; j++) {
-                this.bricks[i][j] = {x: 0, y: 0, status: 1, color: rowColors[j % rowColors-length], type: "normal"}; // status 1 = brick available (this is an objetc)
+                this.bricks[i][j] = {
+                    x: 0,
+                    y: 0,
+                    status: 1,
+                    color: this.rowColors[j % this.rowColors.length],
+                    type: "normal"
+                };
             }
         }
 
-        // bonus health bricks (lv 2)
-        if (level >= 2) {
-            let bonusCounter = level === 2 ? 1 : 2;
+        let bonusCount = 0;
 
-            while (bonusCounter > 0) {
-                const randomColumn = Math.floor(Math.random() * this.columns);
-                const randomRow = Math.floor(Math.random() * this.rows);
-
-                if (this.bricks[randomColumn][randomRow].type === "normal") {
-                    this.bricks[randomColumn][randomRow].type = "life";
-                    this.bricks[randomColumn][randomRow].color = "#00ff66";
-                    bonusCounter--;
-                }
-            }
+        if (level === 2) {
+            bonusCount = 1;
+        } else if (level >= 3) {
+            bonusCount = 2;
         }
 
-    }
+        while (bonusCount > 0) {
+            const randomColumn = Math.floor(Math.random() * this.columns);
+            const randomRow = Math.floor(Math.random() * this.rows);
+            const selectedBrick = this.bricks[randomColumn][randomRow];
 
-    reset() {
-        this.spawnBricks();
+            if (selectedBrick.type === "normal") {
+                selectedBrick.type = "life";
+                selectedBrick.color = "#00ff66";
+                bonusCount--;
+            }
+        }
     }
 
     draw(ctx) {
         for (let i = 0; i < this.columns; i++) {
             for (let j = 0; j < this.rows; j++) {
-                if (this.bricks[i][j].status === 1) { // only draw the brick if its status is 1 (visible)
-                    let brickX = i * (this.brickWidth + this.spacing) + this.spaceLeft;
-                    let brickY = j * (this.brickHeight + this.spacing) + this.spaceTop;
+                const brick = this.bricks[i][j];
 
-                    this.bricks[i][j].x = brickX; // store the x position of the brick
-                    this.bricks[i][j].y = brickY; // store the y position of the brick
+                if (brick.status === 1) {
+                    const brickX = i * (this.brickWidth + this.spacing) + this.spaceLeft;
+                    const brickY = j * (this.brickHeight + this.spacing) + this.spaceTop;
 
-                    ctx.fillStyle = this.bricks[i][j].color;
+                    brick.x = brickX;
+                    brick.y = brickY;
+
+                    ctx.fillStyle = brick.color;
                     ctx.fillRect(brickX, brickY, this.brickWidth, this.brickHeight);
                 }
             }
@@ -146,21 +164,41 @@ class brickWall {
 
         for (let i = 0; i < this.columns; i++) {
             for (let j = 0; j < this.rows; j++) {
-                let br = this.bricks[i][j];
+                const brick = this.bricks[i][j];
 
-                if (br.status === 1) {
-                    if (ball.x + ball.radius > br.x && 
-                        ball.x - ball.radius < br.x + this.brickWidth && 
-                        ball.y + ball.radius > br.y &&
-                        ball.y - ball.radius < br.y + this.brickHeight
-                    ) {
-                        ball.dy = -ball.dy; // reverse vertical direction on bounce with the brick
-                        br.status = 0; // destroyed brick
+                if (brick.status === 1) {
+                    const hitBrick =
+                        ball.x + ball.radius > brick.x &&
+                        ball.x - ball.radius < brick.x + this.brickWidth &&
+                        ball.y + ball.radius > brick.y &&
+                        ball.y - ball.radius < brick.y + this.brickHeight;
+
+                    if (hitBrick) {
+                        brick.status = 0;
                         bricksDestroyed++;
 
-                        if (br.type === "life") {
-
+                        if (brick.type === "life") {
+                            livesEarned++;
                         }
+
+                        const overlapLeft = (ball.x + ball.radius) - brick.x;
+                        const overlapRight = (brick.x + this.brickWidth) - (ball.x - ball.radius);
+                        const overlapTop = (ball.y + ball.radius) - brick.y;
+                        const overlapBottom = (brick.y + this.brickHeight) - (ball.y - ball.radius);
+
+                        const minHorizontalOverlap = Math.min(overlapLeft, overlapRight);
+                        const minVerticalOverlap = Math.min(overlapTop, overlapBottom);
+
+                        if (minHorizontalOverlap < minVerticalOverlap) {
+                            ball.dx = -ball.dx;
+                        } else {
+                            ball.dy = -ball.dy;
+                        }
+
+                        return {
+                            bricksDestroyed,
+                            livesEarned
+                        };
                     }
                 }
             }
@@ -177,42 +215,48 @@ class brickWall {
     }
 }
 
-class game {
-    constructor (canvas, ctx) {
+
+class Game {
+    constructor(canvas, ctx) {
         this.canvas = canvas;
         this.ctx = ctx;
 
         this.ball = new Ball(canvas.width, canvas.height);
         this.paddle = new Paddle(canvas.width, canvas.height);
-        this.brickWall = new brickWall(5, 8, 75, 20, 10, 30, 35); // rows, columns, width, height, spacing, spaceTop, spaceLeft
+        this.brickWall = new BrickWall(5, 8, 75, 20, 10, 30, 35);
 
         this.leftPressed = false;
         this.rightPressed = false;
 
-        this.lives = 3;
-        this.destroyedBlocks = 0;
-        this.gameState = "playing";
+        this.level = 1;
+        this.maxLevel = 3;
 
+        this.lives = 3;
+        this.levelDestroyedBricks = 0;
+        this.totalDestroyedBricks = 0;
+
+        this.gameState = "playing";
+        this.oldTime = 0;
+
+        this.setupLevel(this.level);
         this.eventSetup();
     }
 
     eventSetup() {
-        document.addEventListener("keyup", (event) => this.keyUpHandler(event));
         document.addEventListener("keydown", (event) => this.keyDownHandler(event));
+        document.addEventListener("keyup", (event) => this.keyUpHandler(event));
     }
 
     keyDownHandler(event) {
         if (event.code === "Space") {
             if (this.gameState === "gameover" || this.gameState === "win") {
                 this.resetGame();
-                this.gameState = "playing";
             }
         }
-        
+
         if (event.key === "Left" || event.key === "ArrowLeft") {
             this.leftPressed = true;
-        }
-        else if (event.key === "Right" || event.key === "ArrowRight") {
+        } else if (event.key === "Right" || event.key === "ArrowRight") {
             this.rightPressed = true;
         }
     }
@@ -220,10 +264,21 @@ class game {
     keyUpHandler(event) {
         if (event.key === "Left" || event.key === "ArrowLeft") {
             this.leftPressed = false;
-        }
-        else if (event.key === "Right" || event.key === "ArrowRight") {
+        } else if (event.key === "Right" || event.key === "ArrowRight") {
             this.rightPressed = false;
         }
+    }
+
+    setupLevel(level) {
+        this.level = level;
+        this.levelDestroyedBricks = 0;
+
+        this.partialResetGame();
+        this.brickWall.spawnBricks(level);
+
+        const speedMultiplier = 1 + (level - 1) * 0.2;
+        this.ball.reset();
+        this.ball.setSpeedMultiplier(speedMultiplier);
     }
 
     partialResetGame() {
@@ -235,95 +290,141 @@ class game {
 
     resetGame() {
         this.lives = 3;
-        this.destroyedBlocks = 0;
-        this.partialResetGame();
-        this.brickWall.reset();
+        this.totalDestroyedBricks = 0;
+        this.gameState = "playing";
+        this.oldTime = 0;
+        this.setupLevel(1);
     }
 
-
-    drawLives() {
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "aliceblue";
-        ctx.fillText("Lives: " + this.lives, 20, 320);
-    }
-
-    drawScore() {
-        ctx.font = "20px Arial";
-        ctx.fillStyle = "aliceblue";
-        ctx.fillText("Blocks Destroyed: " + this.destroyedBlocks, 20, 350);
-    }
-
-    drawGameOverlay(text, color) {
-        this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)"; // semi-transparent black background
-        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        this.ctx.font = "bold 70px Arial";
-        this.ctx.fillStyle = color;
-        this.ctx.textAlign = "center";
-        this.ctx.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
-        this.ctx.font = "30px Arial";
-        this.ctx.fillStyle = "aliceblue";
-        this.ctx.fillText("Press SPACE to play again", this.canvas.width / 2, this.canvas.height / 2 + 50);
-        this.ctx.textAlign = "left";
-    }
-
-    updatePaddle() {
-        if (this.leftPressed) {
-            this.paddle.goLeft();
-        }
-        
-        if (this.rightPressed) {
-            this.paddle.goRight();
-        }
-    }
-
-
-    collisionWall() {
-        if (
-            this.ball.x + this.ball.radius > this.canvas.width ||
-            this.ball.x - this.ball.radius < 0
-        ) {
-            this.ball.dx = -this.ball.dx; // reverse horizontal direction
-        }
-
-        if (this.ball.y - this.ball.radius < 0) {
-            this.ball.dy = -this.ball.dy; // reverse vertical direction
-        }
-    }
-
-    collisionPaddle() {
-        if (
-            this.ball.x >= this.paddle.x &&
-            this.ball.x <= this.paddle.x + this.paddle.width &&
-            this.ball.y + this.ball.radius >= this.paddle.y &&
-            this.ball.y + this.ball.radius <= this.paddle.y + this.paddle.height
-        ) {
-            this.ball.dy = -this.ball.dy; // reverse vertical direction on bounce with the player bar
-        }
-    }
-
-    collisionBottom() {
-        if (this.ball.y + this.ball.radius > this.canvas.height) {
-            this.lives--;
-
-            if (this.lives > 0) {
-                this.partialResetGame();
-            }
-
-            else {
-                this.gameState = "gameover";
-                this.lives = 0; // ensure lives don't go negative
-            }
-        }
-    }
-    
-    winCondition() {
-        if (this.destroyedBlocks === this.brickWall.totalBricks()) {
+    nextLevel() {
+        if (this.level < this.maxLevel) {
+            this.setupLevel(this.level + 1);
+            this.gameState = "playing";
+        } else {
             this.gameState = "win";
         }
     }
 
+    drawLives() {
+        this.ctx.font = "20px Arial";
+        this.ctx.fillStyle = "aliceblue";
+        this.ctx.fillText("Lives: " + this.lives, 20, 320);
+    }
+
+    drawScore() {
+        this.ctx.font = "20px Arial";
+        this.ctx.fillStyle = "aliceblue";
+        this.ctx.fillText("Level: " + this.level, 20, 350);
+        this.ctx.fillText(
+            "Bricks Destroyed: " +
+            this.levelDestroyedBricks +
+            " / " +
+            this.brickWall.totalBricks(),
+            20,
+            380
+        );
+    }
+
+    drawGameOverlay(text, color) {
+        this.ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.ctx.font = "bold 70px Arial";
+        this.ctx.fillStyle = color;
+        this.ctx.textAlign = "center";
+        this.ctx.fillText(text, this.canvas.width / 2, this.canvas.height / 2);
+
+        this.ctx.font = "30px Arial";
+        this.ctx.fillStyle = "aliceblue";
+        this.ctx.fillText(
+            "Press SPACE to play again",
+            this.canvas.width / 2,
+            this.canvas.height / 2 + 50
+        );
+
+        this.ctx.textAlign = "left";
+    }
+
+    updatePaddle(deltaTime) {
+        if (this.leftPressed) {
+            this.paddle.goLeft(deltaTime);
+        }
+
+        if (this.rightPressed) {
+            this.paddle.goRight(deltaTime);
+        }
+    }
+
+    collisionWall() {
+        if (this.ball.x + this.ball.radius >= this.canvas.width) {
+            this.ball.x = this.canvas.width - this.ball.radius;
+            this.ball.dx = -Math.abs(this.ball.dx);
+        }
+
+        if (this.ball.x - this.ball.radius <= 0) {
+            this.ball.x = this.ball.radius;
+            this.ball.dx = Math.abs(this.ball.dx);
+        }
+
+        if (this.ball.y - this.ball.radius <= 0) {
+            this.ball.y = this.ball.radius;
+            this.ball.dy = Math.abs(this.ball.dy);
+        }
+    }
+
+    collisionPaddle() {
+        const ballBottom = this.ball.y + this.ball.radius;
+        const ballTop = this.ball.y - this.ball.radius;
+        const ballRight = this.ball.x + this.ball.radius;
+        const ballLeft = this.ball.x - this.ball.radius;
+
+        const paddleTop = this.paddle.y;
+        const paddleBottom = this.paddle.y + this.paddle.height;
+        const paddleLeft = this.paddle.x;
+        const paddleRight = this.paddle.x + this.paddle.width;
+
+        const isColliding =
+            ballRight >= paddleLeft &&
+            ballLeft <= paddleRight &&
+            ballBottom >= paddleTop &&
+            ballTop <= paddleBottom;
+
+        if (isColliding && this.ball.dy > 0) {
+            this.ball.y = this.paddle.y - this.ball.radius;
+
+            const paddleCenter = this.paddle.x + this.paddle.width / 2;
+            const hitOffset = this.ball.x - paddleCenter;
+            const normalizedOffset = hitOffset / (this.paddle.width / 2);
+
+            const speedMultiplier = 1 + (this.level - 1) * 0.2;
+            this.ball.dx = normalizedOffset * 220 * speedMultiplier;
+            this.ball.dy = -Math.abs(220 * speedMultiplier);
+        }
+    }
+
+    collisionBottom() {
+        if (this.ball.y - this.ball.radius > this.canvas.height) {
+            this.lives--;
+
+            if (this.lives > 0) {
+                const speedMultiplier = 1 + (this.level - 1) * 0.2;
+                this.partialResetGame();
+                this.ball.setSpeedMultiplier(speedMultiplier);
+            } else {
+                this.lives = 0;
+                this.gameState = "gameover";
+            }
+        }
+    }
+
+    winCondition() {
+        if (this.levelDestroyedBricks >= this.brickWall.totalBricks()) {
+            this.nextLevel();
+        }
+    }
+
     draw() {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // clear the canvas before drawing the next frame
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.ball.draw(this.ctx);
         this.paddle.draw(this.ctx);
@@ -333,40 +434,53 @@ class game {
 
         if (this.gameState === "win") {
             this.drawGameOverlay("NICE WIN", "#00ff66");
-            return;
         }
 
         if (this.gameState === "gameover") {
             this.drawGameOverlay("GAME OVER", "#ff3b3b");
-            return;
         }
     }
 
-    gameStateUpdate() {
+    gameStateUpdate(deltaTime) {
         if (this.gameState !== "playing") {
             return;
         }
 
-        this.updatePaddle();
+        this.updatePaddle(deltaTime);
+        this.ball.ballMovement(deltaTime);
+
         this.collisionWall();
         this.collisionPaddle();
-        this.collisionBottom();
 
-        const bricksDestroyedThisFrame = this.brickWall.ballCollision(this.ball);
-        this.destroyedBlocks += bricksDestroyedThisFrame;
-        this.winCondition();
+        const collisionResult = this.brickWall.ballCollision(this.ball);
+        this.levelDestroyedBricks += collisionResult.bricksDestroyed;
+        this.totalDestroyedBricks += collisionResult.bricksDestroyed;
 
-        if (this.gameState === "playing") {
-            this.ball.ballMovement();
+        if (collisionResult.livesEarned > 0) {
+            this.lives += collisionResult.livesEarned;
+
+            if (this.lives > 5) {
+                this.lives = 5;
+            }
         }
+
+        this.winCondition();
+        this.collisionBottom();
     }
 
-    gameLoop() {
-        this.gameStateUpdate();
+    gameLoop(newTime = 0) {
+        const deltaTime = (newTime - this.oldTime) / 1000;
+        this.oldTime = newTime;
+
+        const safeDeltaTime = Math.min(deltaTime, 0.03);
+
+        this.gameStateUpdate(safeDeltaTime);
         this.draw();
-        requestAnimationFrame(() => this.gameLoop());
+
+        requestAnimationFrame((time) => this.gameLoop(time));
     }
 }
 
-const breakoutGame = new game(canvas, ctx);
+
+const breakoutGame = new Game(canvas, ctx);
 breakoutGame.gameLoop();
