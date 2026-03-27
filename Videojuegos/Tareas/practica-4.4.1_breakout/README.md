@@ -6,7 +6,7 @@
 Un juego estilo 'breakout', desarrollado en JavaScript, CSS e integrado dentro de un HTML.
 
 ## Objetivo
-Destruye todos los bloques mostrados en pantalla, prediciendo a dónde botará tu pelota, para que la puedas guiar con tu paddle. No pierdas tus vidas, pues no son infinitas!
+Destruye todos los bloques mostrados en pantalla, prediciendo a dónde botará tu pelota, para que la puedas guiar con tu paddle. Avanza por los tres niveles, enfrentandote al hecho de que la pelota será cada vez más rápida. No pierdas tus vidas, pues no son infinitas.. pero tampoco son escasas!
 
 ## Controles
 - Usa la *Left Arrow* para moverte a la izquierda
@@ -22,12 +22,14 @@ Destruye todos los bloques mostrados en pantalla, prediciendo a dónde botará t
 - El juego termina cuando:
     - Logras destruir todos los bloques con vidas restantes (NICE WIN)
     - Te acabas tus 3 vidas (GAME OVER)
+- A partir del nivel 2, un (y en el siguiente dos) bloque verde aparecerá aleatoriamente, dandote la oportunidad de recuperar tu vida.
 
 ## Startup
 Simplemente abre [breakout.html](breakout.html) en tu browser de preferencia, y disfruta del juego!
 
 ## Features
 - Grid de bloques costumizable (filas y columnas)
+- Bloques con una vida cada uno
 - Tableros con scores
 - Sistema de reinicio
 

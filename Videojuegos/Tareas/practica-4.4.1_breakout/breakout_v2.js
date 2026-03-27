@@ -395,15 +395,19 @@ class Game {
             ballTop <= paddleBottom;
 
         if (isColliding && this.ball.dy > 0) {
+            // position the ball just above the paddle to prevent it from getting stuck
             this.ball.y = this.paddle.y - this.ball.radius;
 
             const paddleCenter = this.paddle.x + this.paddle.width / 2;
             const hitOffset = this.ball.x - paddleCenter;
-            const normalizedOffset = hitOffset / (this.paddle.width / 2);
+            const basicOffset = hitOffset / (this.paddle.width / 2);
 
-            const speed = Math.sqrt(this.ball.dx * this.ball.dx + this.ball.dy * this.ball.dy);
+            // prevent a NaN result if the ball hits exactly in the center of the paddle
+            const normalizedOffset = Math.max(-0.95, Math.min(0.95, basicOffset));
+            const speed = Math.sqrt(this.ball.dx * this.ball.dx + this.ball.dy * this.ball.dy); // maintain the current speed of the ball
             this.ball.dx = normalizedOffset * speed;
-            this.ball.dy = -Math.sqrt(speed * speed - this.ball.dx * this.ball.dx);
+            const remainingSpeed = speed * speed - this.ball.dx * this.ball.dx; // calculate the vertical speed based on the horizontal speed to maintain the overall speed
+            this.ball.dy = -Math.sqrt(Math.max(1, remainingSpeed));
         }
     }
 
