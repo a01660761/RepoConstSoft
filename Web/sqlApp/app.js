@@ -1,66 +1,52 @@
-const express = require('express')
-const cors = require('cors')
-const bodyParser = require('body-parser')
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 const mysql = require('mysql2');
-const app = express()
-const port = 3000
+
+const app = express();
+const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors())
+app.use(cors());
 
-// app.js
+app.post('/consulta', (req, res) => {
+    let nombre = req.body.nombre_plato;
+    console.log("Nombre recibido:", nombre);
 
-
-// Create a connection to the database
-/*const connection = mysql.createConnection({
-    host: '127.0.0.1',
-    user: 'root',
-    password: 'passtest',
-    database: 'tienda_gatos'
-});*/
-
-// Connect to the database
-/*connection.connect((err) => {
-    if (err) throw err;
-    console.log('Connected to MySQL Database!');
-
-    // Example query
-    connection.query('SELECT * FROM comidas', (err, results, fields) => {
-        if (err) throw err;
-        console.log(results);
-    });
-
-    // Close the connection
-    connection.end();
-});*/
-
-app.post('/consulta', (req, res) => {     
-    let nombre = req.params.nombre_plato;     
-    let valores = '';     
-    console.log(nombre);  
     const connection = mysql.createConnection({
-        host: 'localhost',
+        host: '127.0.0.1', // o la IP correcta donde realmente corre MySQL
         user: 'root',
         password: 'PutaContra$ena12',
         database: 'tienda_gatos'
-        });   
-    connection.connect((err) => {         
-        if (err) throw err;             
-        console.log('Connected to MySQL Database!');             
-         // Example query             
-         connection.query('SELECT * FROM comidas WHERE nombre_plato = ?',[nombre], (err, results, fields) => {        
-                     if (err) throw err;  
-                    console.log(results); 
-                    valores = results; 
-                    });
-                    // Close the connection     
-                     connection.end();     
-                     });          
- res.send(valores) 
+    });
+
+    connection.connect((err) => {
+        if (err) {
+            console.error("Error al conectar a MySQL:", err);
+            return res.status(500).send("Error de conexión a la base de datos");
+        }
+
+        console.log('Connected to MySQL Database!');
+
+        connection.query(
+            'SELECT * FROM comidas WHERE nombre_plato = ?',
+            [nombre],
+            (err, results) => {
+                if (err) {
+                    console.error("Error en query:", err);
+                    connection.end();
+                    return res.status(500).send("Error en la consulta");
+                }
+
+                console.log(results);
+                res.json(results);   // responder aquí
+                connection.end();
+            }
+        );
+    });
 });
 
-
 app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
+    console.log(`Example app listening on port ${port}`);
 });
