@@ -6,8 +6,8 @@ $(document).ready(function () {
         let second = 0;
         first = $("#fnumber").val();
         second = $("#snumber").val();
-        valores = { "primero": first, "segundo": second };
-        $.post("http://localhost:3005/suma", valores, function (data, status) {
+        valores = { "nombre_plato": first};
+        $.post("http://localhost:3000/consulta", valores, function (data, status) {
             console.log(status)
             $("#result").text(data);
 
